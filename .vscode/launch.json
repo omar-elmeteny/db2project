@@ -6,9 +6,30 @@
     "configurations": [
         {
             "type": "java",
-            "name": "Launch App",
+            "name": "Launch Schema1",
             "request": "launch",
-            "mainClass": "guc.db2.App",
+            "mainClass": "Schema1",
+            "projectName": "db2project"
+        },
+        {
+            "type": "java",
+            "name": "Launch Schema2",
+            "request": "launch",
+            "mainClass": "Schema2",
+            "projectName": "db2project"
+        },
+        {
+            "type": "java",
+            "name": "Launch Schema3",
+            "request": "launch",
+            "mainClass": "Schema3",
+            "projectName": "db2project"
+        },
+        {
+            "type": "java",
+            "name": "Launch Schema4",
+            "request": "launch",
+            "mainClass": "Schema4",
             "projectName": "db2project"
         }
     ]
