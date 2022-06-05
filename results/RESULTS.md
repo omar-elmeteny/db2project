@@ -214,3 +214,83 @@ create index ix_boat_btree on boat using btree(color);
 |1st run|2nd run|3rd run|Average|Improvment|
 |---|---|---|---|---|
 |41ms|41ms|41ms|41ms|**8%**|
+
+### Query 9
+
+```SQL
+select s.sname
+from sailors s, reserves r, boat b
+where
+s.sid = r.sid
+and
+r.bid = b.bid
+and
+b.color = 'red'
+and
+s.sid in ( select s2.sid
+from sailors s2, boat b2, reserves r2
+where s2.sid = r2.sid
+and
+r2.bid = b2.bid
+and
+b2.color = 'green');
+```
+
+#### Without Any Optimization
+
+![Query 9 Plan No Optimization](./images/query_9_no_optimization.svg)
+
+|1st run|2nd run|3rd run|Average|
+|---|---|---|---|
+|43ms|50ms|60ms|51ms|
+
+#### With B-TREE Indices
+
+```SQL
+create index ix_sailors_btree on sailors using btree(sid);
+create index ix_reserves_btree on reserves using btree(bid);
+create index ix_boat_btree on boat using btree(color);
+```
+![Query 9 Plan B-TREE](./images/query_9_btrees.svg)
+|1st run|2nd run|3rd run|Average|Improvment|
+|---|---|---|---|---|
+|47ms|48ms|42ms|45.67ms|**10%**|
+
+#### With Hash Indices
+
+```SQL
+create index ix_sailors_hash on sailors using hash(sid);
+create index ix_reserves_hash on reserves using hash(bid);
+create index ix_boat_hash on boat using hash(color);
+```
+
+![Query 9 Plan Hash](./images/query_9_hash.svg)
+|1st run|2nd run|3rd run|Average|Improvment|
+|---|---|---|---|---|
+|47ms|48ms|48ms|47.67ms|**7%**|
+
+#### With Brin Indices
+
+```SQL
+create index ix_sailors_brin on sailors using brin(sid);
+create index ix_reserves_brin on reserves using brin(bid);
+create index ix_boat_brin on boat using brin(color);
+```
+
+![Query 9 Plan Brin](./images/query_9_brin.svg)
+|1st run|2nd run|3rd run|Average|Improvment|
+|---|---|---|---|---|
+|47ms|41ms|41ms|43ms|**0%**|
+
+#### With Mixed Indices
+
+```SQL
+create index ix_sailors_hash on sailors using hash(sid);
+create index ix_reserves_btree on reserves using btree(bid);
+create index ix_boat_btree on boat using btree(color);
+```
+
+![Query 9 Plan Mixed](./images/query_9_mixed.svg)
+|1st run|2nd run|3rd run|Average|Improvment|
+|---|---|---|---|---|
+|48ms|41ms|37ms|42ms|**18%**|
