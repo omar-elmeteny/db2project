@@ -5,14 +5,18 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Types;
+import java.util.ArrayList;
+import java.util.Random;
 
 
 public class Schema2 {
-    private int test;
+    static private Random rand = new Random();
+    static private String[] relationships = { "child", "parent", "cousin"};
 	
 //	CREATE TABLE Employee(Fname CHAR(20), Minit CHAR(10), Lname CHAR(20), ssn INT PRIMARY KEY, Bdate date, address CHAR(20), sex CHARACTER(1), salary INT, Super_snn INT REFERENCES Employee(ssn), dno INT);
 
-	 public static long insertEmployee(String Fname, String Minit,String Lname,int ssn, Date Bdate, String address, String sex, int salary, int superSSN, int dno, Connection conn) {
+	 public static long insertEmployee(String Fname, String Minit,String Lname,int ssn, Date Bdate, String address, String sex, int salary, Integer superSSN, int dno, Connection conn) {
          String SQL = "INSERT INTO Employee(Fname,Minit,Lname,ssn,Bdate,address,sex,salary,Super_snn,dno) "
                  + "VALUES(?,?,?,?,?,?,?,?,?,?);";
       
@@ -30,7 +34,11 @@ public class Schema2 {
                 pstmt.setString(6, address);
                 pstmt.setString(7, sex);
                 pstmt.setInt(8, salary);
-                pstmt.setInt(9, superSSN);
+                if(superSSN==null){
+                    pstmt.setNull(9, Types.INTEGER);
+                } else{
+                    pstmt.setInt(9, superSSN);
+                }
                 pstmt.setInt(10, dno);
 
              int affectedRows = pstmt.executeUpdate();
@@ -263,72 +271,63 @@ public class Schema2 {
 	 /////////////////////////////////////////////// Data Population Methods //////////////////////////////////////////////////////////////
 	 @SuppressWarnings("deprecation")
 	public static void populateEmployee(Connection conn) {
-		 for (int i = 1; i < 10000; i++) {
+		//inserting Supervisors 
+        for (int i = 1; i < 4000; i++) {
                 String result = "M";
-                if (i > 5000) 
+                if (i > 2000) 
                 	result = "F";
-				if (insertEmployee("Employee" + i, "M" + i,"Employee" + i, i, new Date(22,1,1999), "address" + i ,result,i,i,i, conn) == 0) {
-					System.err.println("insertion of record " + i + " failed");
-					break;
-				} else
-					System.out.println("insertion was successful");
-			}
-		 int i = 10000;
-			insertEmployee("Employee" + i, "M" + i,"Employee" + i, i, new Date(22,1,1999), "address" + i ,"M",i,i,1, conn);
-          i++;
-			insertEmployee("Employee" + i, "M" + i,"Employee" + i, i, new Date(22,1,1999), "address" + i ,"M",i,i,1, conn);
+                int random_supervisor_salary = rand.nextInt((60000 - 10000) + 1) + 10000;
+                int random_department=rand.nextInt((150 - 1) + 1) + 1;
+				insertEmployee("employee" + i, "M" + i,"employee" + i, i, new Date(22,1,1999), "address" + i ,result,random_supervisor_salary,null,random_department, conn);
+            }
 
-	 }
+            for (int i = 4000; i <= 16000; i++) {
+                String result = "M";
+                if (i > 10000) 
+                	result = "F";
+                int random_salary = rand.nextInt((60000 - 10000) + 1) + 10000;
+                int random_department=rand.nextInt((150 - 1) + 1) + 1;
+		        insertEmployee("employee" + i, "M" + i,"employee" + i, i, new Date(22,1,1999), "address" + i ,result,random_salary,null,random_department, conn);
+            }
+
+	}
+
 	 
 	 @SuppressWarnings("deprecation")
 	public static void populateDepartment(Connection conn) {
-		 for (int i = 1; i < 10000; i++) {
-				if (insertDepartment("Department" + i, i,i,new Date(1,1,1990), conn) == 0) {
-					System.err.println("insertion of record " + i + " failed");
-					break;
-				} else
-					System.out.println("insertion was successful");
+		 for (int i = 1; i <= 150; i++) {
+            int random_manager = rand.nextInt((16000 - 1) + 1) + 1;
+				insertDepartment("Department" + i, i,random_manager,new Date(1,1,1990), conn);
 			}
 	 }
 		public static void populateDeptLocations(Connection conn) {
-			 for (int i = 1; i < 10000; i++) {
-					if (insertDeptLocations(i, "Location" + i, conn) == 0) {
-						System.err.println("insertion of record " + i + " failed");
-						break;
-					} else
-						System.out.println("insertion was successful");
+			 for (int i = 1; i <= 150; i++) {
+					insertDeptLocations(i, "Location" + i, conn);
 				}
 		 }
 		
 		public static void populateProject(Connection conn) {
-			 for (int i = 1; i < 10000; i++) {
-					if (insertProject("Project" + i, i,"Location1" + i,i, conn) == 0) {
-						System.err.println("insertion of record " + i + " failed");
-						break;
-					} else
-						System.out.println("insertion was successful");
+			 for (int i = 1; i <= 9200; i++) {
+                int depts = rand.nextInt((150 - 1) + 1) + 1;
+					insertProject("Project" + i, i,"Location"+depts,depts, conn);					
 				}
 		 }
 		public static void populateWorksOn(Connection conn) {
-			 for (int i = 1; i < 10000; i++) {
-					if (insertWorksOn(i, i, i, conn) == 0) {
-						System.err.println("insertion of record " + i + " failed");
-						break;
-					} else
-						System.out.println("insertion was successful");
+			 for (int i = 1; i <= 16000; i++) {
+                int randomProject=rand.nextInt((150 - 1) + 1) + 1;
+                int randomHours=rand.nextInt((9 - 1) + 1) + 1;
+					insertWorksOn(i, randomProject, randomHours, conn);
 				}
 		 }
 		@SuppressWarnings("deprecation")
 		public static void populateDependent(Connection conn) {
-			 for (int i = 1; i < 10000; i++) {
-				 String result = "F";
-				 if (i > 5000) 
-					 result = "M";
-					if (insertDependent(i, "Name" + i, result,new Date(1,1,1999),"child", conn) == 0) {
-						System.err.println("insertion of record " + i + " failed");
-						break;
-					} else
-						System.out.println("insertion was successful");
+			 for (int i = 1; i <= 16000; i++) {
+				 String result = "M";
+				 if ((i > 2000 &&i<4000)||(i>10000)) 
+					 result = "F";
+                int random_employee=rand.nextInt((16000 - 1) + 1) + 1;
+                String relation = relationships[rand.nextInt(relationships.length)];
+				insertDependent(i, "employee" + random_employee, result,new Date(1,1,1999),relation, conn);
 				}
 		 }
 		
