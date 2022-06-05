@@ -127,7 +127,7 @@ create index ix_sailors_brin on sailors using brin(sid);
 create index ix_reserves_brin on reserves using brin(bid);
 ```
 
-![Query 1 Plan Brin](./images/query_7_brin.svg)
+![Query 7 Plan Brin](./images/query_7_brin.svg)
 |1st run|2nd run|3rd run|Average|Improvment|
 |---|---|---|---|---|
 |41ms|42ms|44ms|42.33ms|**8%**|
@@ -143,3 +143,74 @@ create index ix_reserves_btree on reserves using btree(bid);
 |1st run|2nd run|3rd run|Average|Improvment|
 |---|---|---|---|---|
 |41ms|38ms|39ms|39.33ms|**15%**|
+
+### Query 8
+
+```SQL
+select s.sname
+from sailors s
+where s.sid in ( select r.sid
+from reserves r
+where r. bid in (select b.bid
+from boat b
+where b.color = 'red'));
+```
+
+#### Without Any Optimization
+
+![Query 8 Plan No Optimization](./images/query_8_no_optimization.svg)
+
+|1st run|2nd run|3rd run|Average|
+|---|---|---|---|
+|47ms|45ms|42ms|44.67ms|
+
+#### With B-TREE Indices
+
+```SQL
+create index ix_sailors_btree on sailors using btree(sid);
+create index ix_reserves_btree on reserves using btree(bid);
+create index ix_boat_btree on boat using btree(color);
+```
+![Query 8 Plan B-TREE](./images/query_8_btrees.svg)
+|1st run|2nd run|3rd run|Average|Improvment|
+|---|---|---|---|---|
+|39ms|45ms|39ms|41ms|**8%**|
+
+#### With Hash Indices
+
+```SQL
+create index ix_sailors_hash on sailors using hash(sid);
+create index ix_reserves_hash on reserves using hash(bid);
+create index ix_boat_hash on boat using hash(color);
+```
+
+![Query 8 Plan Hash](./images/query_8_hash.svg)
+|1st run|2nd run|3rd run|Average|Improvment|
+|---|---|---|---|---|
+|43ms|41ms|42ms|42ms|**6%**|
+
+#### With Brin Indices
+
+```SQL
+create index ix_sailors_brin on sailors using brin(sid);
+create index ix_reserves_brin on reserves using brin(bid);
+create index ix_boat_brin on boat using brin(color);
+```
+
+![Query 8 Plan Brin](./images/query_8_brin.svg)
+|1st run|2nd run|3rd run|Average|Improvment|
+|---|---|---|---|---|
+|46ms|41ms|44ms|43.67ms|**0%**|
+
+#### With Mixed Indices
+
+```SQL
+create index ix_sailors_hash on sailors using hash(sid);
+create index ix_reserves_btree on reserves using btree(bid);
+create index ix_boat_btree on boat using btree(color);
+```
+
+![Query 8 Plan Mixed](./images/query_8_mixed.svg)
+|1st run|2nd run|3rd run|Average|Improvment|
+|---|---|---|---|---|
+|41ms|41ms|41ms|41ms|**8%**|
