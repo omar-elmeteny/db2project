@@ -8,6 +8,7 @@ import java.sql.Statement;
 
 
 public class Schema2 {
+    private int test;
 	
 //	CREATE TABLE Employee(Fname CHAR(20), Minit CHAR(10), Lname CHAR(20), ssn INT PRIMARY KEY, Bdate date, address CHAR(20), sex CHARACTER(1), salary INT, Super_snn INT REFERENCES Employee(ssn), dno INT);
 
