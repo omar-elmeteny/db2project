@@ -5,8 +5,21 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
+import java.util.stream.IntStream;
 
 public class Schema4 {
+    static private Random rand = new Random(1000);
+    static private String[] languages = { "EN", "AR", "FR", "DE", "ES" };
+    static private String[] countries = { "US", "EG", "FR", "DE", "GB" };
+    static private String[] genres = { "Action", "Comedy", "Drama", "Fantasy", "Horror", "Mystery", "Romance",
+            "Thriller", "Western" };
+    static private String[] genders = { "M", "F" };
+
     // CREATE TABLE Movie(mov_id INT PRIMARY KEY, mov_title CHAR(50), mov_year INT,
     // mov_time INT, mov_lang CHAR(50), mov_dt_rel date, mov_rel_country CHAR(5));
 
@@ -375,103 +388,124 @@ public class Schema4 {
     ////////////////////////////////////////////////////////// //////////////////////////////////////////////////////////
     @SuppressWarnings("deprecation")
     public static void populateMovie(Connection conn) {
-        for (int i = 1; i < 10000; i++) {
+        for (int i = 1; i <= 20000; i++) {
+            int random_time = rand.nextInt((12)) + 1;
+            String language = languages[rand.nextInt(languages.length)];
+            String country = countries[rand.nextInt(countries.length)];
+            insertMovie(i, "Movie" + i, 2000 + i, random_time, language, new Date(22, 1, 1999), country, conn);
+        }
 
-            if (insertMovie(i, "Movie" + i, i, i, "EN", new Date(22, 1, 1999), "US", conn) == 0) {
-                System.err.println("insertion of record " + i + " failed");
-                break;
-            } else
-                System.out.println("insertion was successful");
+        // specified movie #1
+
+        insertMovie(20001, "Annie Hall", 1977, 4, "EN", new Date(20, 4, 1977), "US", conn);
+
+        for (int i = 20002; i <= 80000; i++) {
+            int random_time = rand.nextInt((12)) + 1;
+            String language = languages[rand.nextInt(languages.length)];
+            String country = countries[rand.nextInt(countries.length)];
+            insertMovie(i, "Movie" + i, 2000 + i, random_time, language, new Date(22, 1, 1999), country, conn);
+        }
+
+        // specified movie #2
+
+        insertMovie(80001, "Eyes Wide Shut", 1999, 7, "EN", new Date(16, 7, 1999), "US", conn);
+
+        for (int i = 80002; i <= 100000; i++) {
+            int random_time = rand.nextInt((12)) + 1;
+            String language = languages[rand.nextInt(languages.length)];
+            String country = countries[rand.nextInt(countries.length)];
+            insertMovie(i, "Movie" + i, 2000 + i, random_time, language, new Date(22, 1, 1999), country, conn);
         }
     }
 
     public static void populateReviewer(Connection conn) {
-        for (int i = 1; i < 10000; i++) {
-
-            if (insertReviewer(i, "Name" + i, conn) == 0) {
-                System.err.println("insertion of record " + i + " failed");
-                break;
-            } else
-                System.out.println("insertion was successful");
+        for (int i = 1; i <= 10000; i++) {
+            insertReviewer(i, "Name" + i, conn);
         }
     }
 
     public static void populateGenres(Connection conn) {
-        for (int i = 1; i < 10000; i++) {
-
-            if (insertGenres(i, "Gnere" + i, conn) == 0) {
-                System.err.println("insertion of record " + i + " failed");
-                break;
-            } else
-                System.out.println("insertion was successful");
+        for (int i = 1; i <= 7; i++) {
+            insertGenres(i, genres[i], conn);
         }
     }
 
     public static void populateActor(Connection conn) {
-        for (int i = 1; i < 10000; i++) {
-            String result = "M";
-            if (i > 5000)
-                result = "F";
-            if (insertActor(i, "Actor" + i, "Actor" + i, result, conn) == 0) {
-                System.err.println("insertion of record " + i + " failed");
-                break;
-            } else
-                System.out.println("insertion was successful");
+        for (int i = 1; i <= 120000; i++) {
+            String gender = genders[rand.nextInt(genders.length)];
+            insertActor(i, "Actor" + i, "Actor" + i, gender, conn);
         }
     }
 
     public static void populateDirector(Connection conn) {
-        for (int i = 1; i < 10000; i++) {
-
-            if (insertDirector(i, "Actor" + i, "Actor" + i, conn) == 0) {
-                System.err.println("insertion of record " + i + " failed");
-                break;
-            } else
-                System.out.println("insertion was successful");
+        for (int i = 1; i <= 6000; i++) {
+            if (i == 3000) {
+                insertDirector(i, "Woddy", "Allen", conn); // insert woddy allen in between
+            } else {
+                insertDirector(i, "Director" + i, "Director" + i, conn);
+            }
         }
     }
 
     public static void populateMovieDirection(Connection conn) {
-        for (int i = 1; i < 10000; i++) {
-
-            if (insertMovieDirection(i, i, conn) == 0) {
-                System.err.println("insertion of record " + i + " failed");
-                break;
-            } else
-                System.out.println("insertion was successful");
+        for (int i = 1; i <= 350; i++) {
+            insertMovieDirection(3000, i, conn);
         }
+        for (int i = 351; i <= 5999; i++) {
+            insertMovieDirection(i, i, conn);
+        }
+        insertMovieDirection(6000, 80001, conn);
     }
 
     public static void populateMovieCast(Connection conn) {
-        for (int i = 1; i < 10000; i++) {
+        List<Integer> Movies_Shuffled = new ArrayList<>();
+        for (int i = 1; i <= 100000; i++) {
+            Movies_Shuffled.add(i); // before shuffle
+        }
+        Collections.shuffle(Movies_Shuffled); // after shuffle
 
-            if (insertMovieCast(i, i, "Actor" + i, conn) == 0) {
-                System.err.println("insertion of record " + i + " failed");
-                break;
-            } else
-                System.out.println("insertion was successful");
+        for (int j = 1; j <= 1000; j++) {
+
+            for (int i = 1; i <= 100; i++) {
+                if (j % 5 == 0) {
+                    insertMovieCast(j, 20001, "Actor" + i, conn);
+                    break;
+                } else {
+                    insertMovieCast(j, Movies_Shuffled.get(i), "Actor" + i, conn);
+                }
+            }
+            Collections.shuffle(Movies_Shuffled);
+        }
+        for (int j = 1000; j <= 1150; j++) {
+            insertMovieCast(j, 80001, "Actor" + j, conn);
+            insertMovieCast(j, 20001, "Actor" + j, conn);
+            insertMovieCast(j, 50000, "Actor" + j, conn);
+        }
+
+        for (int j = 1151; j <= 1174; j++) {
+            insertMovieCast(j, 20001, "Actor" + j, conn);
+        }
+
+        for (int j = 1024; j <= 1124; j++) {
+            insertMovieCast(j, 80001, "Actor" + j, conn);
+            insertMovieCast(j, 80005, "Actor" + j, conn);
         }
     }
 
     public static void populateMovieGenres(Connection conn) {
-        for (int i = 1; i < 10000; i++) {
-
-            if (insertMovieGenres(i, i, conn) == 0) {
-                System.err.println("insertion of record " + i + " failed");
-                break;
-            } else
-                System.out.println("insertion was successful");
+        for (int i = 1; i <= 100000; i++) {
+            int random_genre_id = rand.nextInt(genres.length);
+            insertMovieGenres(i, random_genre_id, conn);
         }
     }
 
     public static void populateRating(Connection conn) {
-        for (int i = 1; i < 10000; i++) {
-
-            if (insertRating(i, i, i, i, conn) == 0) {
-                System.err.println("insertion of record " + i + " failed");
-                break;
-            } else
-                System.out.println("insertion was successful");
+        for (int i = 1; i <= 10000; i++) {
+            for (int j = 1; j <= 10; j++){
+                int rating_Stars = rand.nextInt(5) + 1;
+                int zero_rate = rand.nextInt(10) + 1;
+                insertRating(j, i, rating_Stars, zero_rate, conn);
+            }
         }
     }
 
