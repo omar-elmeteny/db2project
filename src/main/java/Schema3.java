@@ -134,8 +134,10 @@ public class Schema3 {
     public static ArrayList<Integer> populateBoat(Connection conn) throws SQLException {
         System.out.println("Populating boats");
         ArrayList<Integer> result = new ArrayList<>();
+        int div = 3000 / colors.length;
         for (int i = 1; i <= 3000; i++) {
-            String color = colors[random.nextInt(colors.length)];
+
+            String color = colors[(i / div) % colors.length];
             int boatID = insertBoat(i, "Boat" + i, color, conn);
             result.add(boatID);
         }
@@ -147,7 +149,7 @@ public class Schema3 {
             throws SQLException {
         System.out.println("Populating reserves");
         for (int i = 1; i <= 35000; i++) {
-            int boatID = boats.get(random.nextInt(boats.size())%105);
+            int boatID = i % 50 == 0 ? 103 : boats.get(random.nextInt(boats.size()));
             int sailorID = sailors.get(random.nextInt(sailors.size()));
             if (!insertReserves(sailorID, boatID, new Date(1, 1, 1999), conn)) {
                 i--;
@@ -171,7 +173,7 @@ public class Schema3 {
 
         connection = DriverManager.getConnection(
                 "jdbc:postgresql://127.0.0.1:5432/schema3", "postgres",
-                "1111");
+                "1");
 
         insertSchema3(connection);
 
