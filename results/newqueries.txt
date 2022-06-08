@@ -1,0 +1,121 @@
+/* QUERY 1 */
+        
+with s as (select * from section where semester = 1 and year = 2019),
+        cs1_student as (select * from student where department = 'CSEN'),
+        sem1_student as (select takes.*, s.* from takes inner join s on takes.section_id = s.section_id inner join cs1_student on cs1_student.id = takes.student_id)
+        select * from cs1_student full outer join sem1_student on CS1_student.id = sem1_student.student_id;
+
+/****************************************************/
+/* QUERY 2 */
+        
+with c as (select count(*) n from employee e, department d where mgr_snn = ssn and dno = dnumber and lname = 'employee1')
+    select pnumber from project 
+    where pnumber in (select pno as pnumber from works_on, employee where essn=ssn and lname = 'employee1')
+    or (select n from c) <> 0
+
+/****************************************************/
+/* QUERY 3 */
+        
+
+        select lname, fname 
+        from employee 
+        where salary > ( 
+        select max(salary)
+        from employee 
+        where dno=5 )
+        
+
+/****************************************************/
+/* QUERY 4 */
+        
+select e.fname, e.lname 
+        from employee as e 
+        where EXISTS ( 
+        select essn 
+        from dependent as d 
+        where e.fname = d.dependent_name 
+        and 
+        e.sex = d.sex and d.essn = e.ssn)
+
+/****************************************************/
+/* QUERY 5 */
+        
+select fname, lname 
+        from employee 
+        where ssn in ( select essn 
+         from dependent 
+         )
+
+/****************************************************/
+/* QUERY 6 */
+        
+select dno, count(*) 
+    from employee 
+    where salary > 40000 and dno in ( 
+        select dno 
+        from employee 
+        group by dno 
+        having count (*) > 5) 
+    group by dno
+
+/****************************************************/
+/* QUERY 7 */
+        
+select s.sname
+    from sailors s
+    inner join reserves r on r.sid = s.sid where r.bid = 103
+    
+
+/****************************************************/
+/* QUERY 8 */
+        
+select s.sname from sailors s 
+    inner join reserves r on r.sid = s.sid
+    inner join boat b on r.bid = b.bid
+    where b.color = 'red'
+
+/****************************************************/
+/* QUERY 9 */
+        
+with bgreen as (select bid from boat where color = 'green'),
+        bred as (select bid from boat where color = 'red'),
+        rgreen as (select sid from reserves where bid in (select bid from bgreen)),
+        rred as (select sid from reserves where bid in (select bid from bred))
+        select sname from sailors where sid in (select sid from rgreen intersect select sid from rred)
+        
+
+/****************************************************/
+/* QUERY 10 */
+        
+select a.* 
+    from actor a
+    inner join movie_cast mc on mc.act_id = a.act_id
+    inner join movie m on m.mov_id = mc.mov_id
+    where m.mov_title = 'Annie Hall'            
+        
+
+/****************************************************/
+/* QUERY 11 */
+        
+WITH movs as (select mc2.mov_id from
+            movie m
+            inner join movie_cast mc
+            on m.mov_id = mc.mov_id 
+            inner join movie_cast mc2 on mc2.role = mc.role
+            where mov_title = 'Eyes Wide Shut'
+            )
+        select dir_fname, dir_lname
+    from director d
+    inner join movie_direction md 
+    on md.dir_id = d.dir_id
+    where mov_id in (select mov_id from movs)
+
+/****************************************************/
+/* QUERY 12 */
+        
+WITH wa as (select dir_id from director where dir_fname='Woddy' and dir_lname='Allen'),
+wa_movies as (select mov_id from movie_direction where dir_id in (select dir_id from wa))
+select mov_title 
+from movie m inner join wa_movies on m.mov_id = wa_movies.mov_id
+
+/****************************************************/
