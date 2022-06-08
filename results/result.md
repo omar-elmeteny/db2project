@@ -1,5 +1,14 @@
-# RESULTS
+# CSEN604 Databases II Project Report
+## Environment
 
+The queries were run on the following environment:
+
+- PostgreSQL 14.3, compiled by Visual C++ build 1914, 64-bit
+- Windows 10 Version 21H2 (OS Build 19044.1706)
+- Processor AMD Ryzen 9 5900X 12-Core Processor
+- RAM 64 GB 3200 MHz
+
+No changes were made to the Postgres default configuration.
 
 ## Schema 1
 
@@ -1764,3 +1773,13 @@ create index "ix_director_btree" on "director" using btree ("dir_fname", "dir_ln
 |Run 1|Run 2|Run 3|Average|Planning|Cost|Cost vs w/o Indexes|Time vs w/o Indexes|Cost vs Unoptimized|Time vs Unoptimized|
 |---|---|---|---|---|---|---|---|---|---|
 |0.624ms|0.656ms|0.583ms|0.621ms|0.235ms|10.25|7%|94%|62%|123%|
+
+## Conclusion
+
+In all queries the B-Tree index performed better than Hash and BRIN indices. 
+B-Tree also had the advantage of supporting an index on multiple columns which is not supported in either Hash or BRIN.
+Also B-Tree support `include` clause,  which can improve the performance by including a column with the index, and therefore making the engine skip the step where it has to lookup the value after using the index.
+
+The Hash index did improve the performance of many queries, however the B-Tree index always performed better.
+
+As for the BRIN index, it had no effect whatsoever on most queries.
